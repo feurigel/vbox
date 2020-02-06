@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
-echo "Installing mailhog"
+apt-get install -y golang
+
+go get github.com/mailhog/MailHog
+MailHog -h
 
 exit 0

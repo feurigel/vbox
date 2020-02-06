@@ -25,9 +25,9 @@ provision:
   php: true
   nginx: true
   apache: false
-  mailhog: false
   nvm: false
   mysql: true
+  mailhog: false
   docker: false
   welcome: true
   frameworks: true
