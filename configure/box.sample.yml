@@ -27,7 +27,7 @@ provision:
   apache: false
   nvm: false
   mysql: true
-  mailhog: false
+  mailhog: true
   docker: false
   welcome: true
   frameworks: true

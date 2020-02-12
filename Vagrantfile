@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
   config.vm.network "private_network", ip: configure["BOX_IP"]
 
   # Shared folder
-  config.vm.synced_folder configure["HOST_SRC_FOLDER"], "/var/www/html", group: "www-data"
+  config.vm.synced_folder configure["HOST_SRC_FOLDER"], "/var/www/html", owner: "www-data", group: "www-data"
 
   config.vm.provider "virtualbox" do |vb|
       # Give your box a name, that is displayed in the VirtualBox Manager
@@ -92,9 +92,9 @@ Vagrant.configure("2") do |config|
       config.vm.provision "apache", type: "shell", path: "provisioning/apache.sh"
   end
 
-  # Apache
+  # Mailhog
   if configure["provision"]["mailhog"]
-      config.vm.provision "mailhog", type: "shell", path: "provisioning/mailhog.sh"
+      config.vm.provision "mailhog", type: "shell", path: "provisioning/mailhog.sh", privileged: false
   end
 
   # Node
