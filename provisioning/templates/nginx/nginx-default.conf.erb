@@ -21,7 +21,7 @@ server {
             include snippets/fastcgi-php.conf;
 
             # With php-fpm (or other unix sockets):
-            fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+            fastcgi_pass unix:/var/run/php/php<%= vars['php']['current'] %>-fpm.sock;
         }
         <% end %>
 }
@@ -34,8 +34,8 @@ server {
         index index.php index.html;
 
         server_name <%= vars['SERVER_NAME'] %> <%= vars['BOX_IP'] %>;
-        ssl_certificate     /vagrant/files/vbox.cert;
-        ssl_certificate_key /vagrant/files/vbox.key;
+        ssl_certificate     /var/certificates/vbox.cert;
+        ssl_certificate_key /var/certificates/vbox.key;
         ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers         HIGH:!aNULL:!MD5;
 
@@ -49,7 +49,7 @@ server {
             include snippets/fastcgi-php.conf;
 
             # With php-fpm (or other unix sockets):
-            fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+            fastcgi_pass unix:/var/run/php/php<%= vars['php']['current'] %>-fpm.sock;
         }
 }
 <% end %>

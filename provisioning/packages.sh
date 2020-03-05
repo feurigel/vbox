@@ -3,7 +3,6 @@
 apt-get update
 
 apt-get install -y \
-unzip \
-supervisor
+${PACKAGES}
 
 exit $?

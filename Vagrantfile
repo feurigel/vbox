@@ -65,31 +65,57 @@ Vagrant.configure("2") do |config|
       vb.memory = configure["BOX_MEMORY"]
   end
 
-  # Basic tools provisioning
-  config.vm.provision "base", type: "shell", path: "provisioning/base.sh"
-
-  # puts configure["provision"]
-
-  #configure["provision"].each do |provision|
+  # Packages preinstall
+  packages = configure["packages"]
+  if !packages["preprovision"].nil? && !packages["preprovision"].empty?
+    # Basic tools provisioning
+    pkgs = packages["preprovision"].join(" ");
+    config.vm.provision "preprovsion",
+     type: "shell",
+     path: "provisioning/packages.sh",
+     env: {"PACKAGES" => pkgs}
+  end
 
   # PHP
   if configure["provision"]["php"]
-      config.vm.provision "php-7.2", type: "shell", path: "provisioning/php-72.sh"
-      config.vm.provision "composer", type: "shell", path: "provisioning/composer.sh"
+      configure["php"]["versions"].each do |version|
+          if !configure["php"]["modules"].nil? && !configure["php"]["modules"].empty?
+              modules = Array.new
+              configure["php"]["modules"].each do |mod|
+                  modules.push("php#{version}-#{mod}")
+              end
+              mods = modules.join(" ")
+          end
+        config.vm.provision "php-#{version}",
+         type: "shell",
+         path: "provisioning/php.sh",
+         env: {"PHP_VERSION" => version, "PHP_MODULES" => mods}
+      end
+      config.vm.provision "composer",
+       type: "shell",
+       path: "provisioning/composer.sh"
   end
 
   if configure["USE_SSL"]
-    config.vm.provision "SSL", type: "shell", path: "provisioning/createSSLCert.sh", privileged: false, env: configure
+    config.vm.provision "SSL",
+     type: "shell",
+     path: "provisioning/createSSLCert.sh",
+     env: configure
   end
 
   # Nginx
   if configure["provision"]["nginx"]
-      config.vm.provision "nginx", type: "shell", path: "provisioning/nginx.sh"
+      config.vm.provision "nginx",
+       type: "shell",
+       path: "provisioning/nginx.sh"
   end
 
   # Apache
   if configure["provision"]["apache"]
-      config.vm.provision "apache", type: "shell", path: "provisioning/apache.sh"
+      config.vm.provision "apache",
+       type: "shell",
+       path: "provisioning/apache.sh",
+       env: {"PHP_VERSION" => configure["php"]["current"]}
   end
 
   # Mailhog
@@ -99,7 +125,10 @@ Vagrant.configure("2") do |config|
 
   # Node
   if configure["provision"]["nvm"]
-      config.vm.provision "nvm", type: "shell", path: "provisioning/nvm.sh", privileged: false
+      config.vm.provision "nvm",
+       type: "shell",
+       path: "provisioning/nvm.sh",
+       privileged: false
   end
 
   # Databases
@@ -107,27 +136,49 @@ Vagrant.configure("2") do |config|
       if !configure["mysql"]["MYSQL_MIGRATION_FILE"].nil? && File.exist?(configure["mysql"]["MYSQL_MIGRATION_FILE"])
           config.vm.provision "file", source: configure["mysql"]["MYSQL_MIGRATION_FILE"], destination: "/tmp/mysql/migration.sql"
       end
-      config.vm.provision "mysql", type: "shell", path: "provisioning/mysql.sh", env: configure["mysql"]
+      config.vm.provision "mysql",
+       type: "shell",
+       path: "provisioning/mysql.sh",
+       env: configure["mysql"]
   end
 
   # Docker
   if configure["provision"]["docker"]
-      config.vm.provision "docker", type: "shell", path: "provisioning/docker.sh"
-      config.vm.provision "docker-compose", type: "shell", path: "provisioning/docker-compose.sh"
+      config.vm.provision "docker",
+       type: "shell",
+       path: "provisioning/docker.sh"
+      config.vm.provision "docker-compose",
+       type: "shell",
+       path: "provisioning/docker-compose.sh"
   end
 
   # Welcome screen
   if configure["provision"]["welcome"]
-      config.vm.provision "welcome", type: "shell", path: "provisioning/welcome.sh", privileged: false
+      config.vm.provision "welcome",
+       type: "shell",
+       path: "provisioning/welcome.sh",
+       privileged: false
   end
 
   # Frameworks
   if configure["provision"]["frameworks"]
-      config.vm.provision "frameworks", type: "shell", path: "provisioning/frameworks.sh", privileged: false
+      config.vm.provision "frameworks",
+       type: "shell",
+       path: "provisioning/frameworks.sh",
+       privileged: false
+  end
+
+  # Packes post install
+  if !packages["postprovision"].nil? && !packages["postprovision"].empty?
+    packages = packages["postprovision"].join(" ");
+    config.vm.provision "postprovision",
+     type: "shell",
+     path: "provisioning/packages.sh",
+     env: {"PACKAGES" => packages}
   end
 
   # Open default browser on host
-  if configure["provision"]["nginx"] && (configure["provision"]["nginx"] || configure["provision"]["apache"])
+  if configure["OPEN_BROWSER"] && (configure["provision"]["nginx"] || configure["provision"]["apache"])
     config.trigger.after [:up] do |trigger|
         trigger.name = "Up and running"
         trigger.info = "Vbox is up and running. Build something amazing."
