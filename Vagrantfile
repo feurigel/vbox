@@ -70,7 +70,7 @@ Vagrant.configure("2") do |config|
   if !packages["preprovision"].nil? && !packages["preprovision"].empty?
     # Basic tools provisioning
     pkgs = packages["preprovision"].join(" ");
-    config.vm.provision "preprovsion",
+    config.vm.provision "preprovision",
      type: "shell",
      path: "provisioning/packages.sh",
      env: {"PACKAGES" => pkgs}
@@ -120,7 +120,11 @@ Vagrant.configure("2") do |config|
 
   # Mailhog
   if configure["provision"]["mailhog"]
-      config.vm.provision "mailhog", type: "shell", path: "provisioning/mailhog.sh", privileged: false
+      config.vm.provision "mailhog",
+       type: "shell",
+       path: "provisioning/mailhog.sh",
+       privileged: false,
+       env: {"PHP_VERSION" => configure["php"]["current"]}
   end
 
   # Node
