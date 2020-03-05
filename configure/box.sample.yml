@@ -5,7 +5,7 @@
 ########################################################################################################################
 BOX_BASE: "ubuntu/bionic64"
 BOX_NAME: "vbox-dev"
-BOX_VERSION: "20190726.0.0"
+BOX_VERSION: "20200227.0.0"
 BOX_IP: "10.0.0.42"
 BOX_CPU: 2
 BOX_MEMORY: 4096
@@ -15,6 +15,19 @@ WEB_ROOT: /var/www/html
 SERVER_NAME: dev.box
 USE_SSL: true
 OPEN_BROWSER: true
+
+########################################################################################################################
+#
+# Define OS packages that are installed before and/or after provisioning.
+#
+########################################################################################################################
+packages:
+  preprovision:
+    - unzip
+    # htop
+  postprovision:
+    # - supervisor
+    #   tmux
 
 ########################################################################################################################
 #
@@ -31,6 +44,35 @@ provision:
   docker: false
   welcome: true
   frameworks: true
+
+########################################################################################################################
+#
+# PHP
+# Define installed PHP (fpm) versions, customize the current version of PHP and which PHP modules should be installed
+# for each version.
+#
+# Defaults: php{version}-fpm, php{version}-cli and php-xdebug
+#
+########################################################################################################################
+php:
+  current: 7.2
+  versions:
+    - 7.2
+    #- 7.3
+    - 7.4
+  modules:
+    - curl
+    - zip
+    - common
+    - json
+    - mysql
+    - readline
+    - xml
+    - gd
+    - mbstring
+    - opcache
+    - sqlite3
+    - intl
 
 ########################################################################################################################
 #
